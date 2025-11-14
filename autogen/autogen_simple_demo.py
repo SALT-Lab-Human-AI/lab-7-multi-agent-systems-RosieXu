@@ -51,6 +51,8 @@ class SimpleInterviewPlatformWorkflow:
         # Phase 4: Review
         self.phase_review()
 
+        self.phase_launch()
+
         # Summary
         self.print_summary()
 
@@ -142,6 +144,39 @@ Create a product blueprint for our platform."""
         self.outputs["blueprint"] = response.choices[0].message.content
         print("\n[BlueprintAgent Output]")
         print(self.outputs["blueprint"])
+    def phase_launch(self):
+        """Phase 4: Launch Strategy"""
+        print("\n" + "="*80)
+        print("PHASE 4: LAUNCH STRATEGY")
+        print("="*80)
+        print("[LaunchAgent is creating the launch plan...]")
+
+        system_prompt = """You are a launch strategist for new software products.
+Based on the product blueprint, propose a simple launch strategy including:
+- Initial target users
+- Basic pricing or trial approach
+- Key launch channels (e.g., email, social media, partnerships)
+- A rough 3-month rollout plan
+Be concise - about 150 words."""
+
+        user_message = f"""Product Blueprint:
+{self.outputs['blueprint']}
+
+Create a launch strategy for this AI-powered interview platform."""
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            temperature=Config.AGENT_TEMPERATURE,
+            max_tokens=Config.AGENT_MAX_TOKENS,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ]
+        )
+
+        self.outputs["launch"] = response.choices[0].message.content
+        print("\n[LaunchAgent Output]")
+        print(self.outputs["launch"])
 
     def phase_review(self):
         """Phase 4: Strategic Review"""
@@ -184,7 +219,8 @@ This workflow demonstrated a 4-agent collaboration:
 1. ResearchAgent - Analyzed the market
 2. AnalysisAgent - Identified opportunities
 3. BlueprintAgent - Designed the product
-4. ReviewerAgent - Provided strategic recommendations
+4. LaunchAgent    - Designed a launch strategy
+5. ReviewerAgent - Provided strategic recommendations
 
 Each agent received context from the previous agent's output,
 demonstrating the sequential workflow pattern of AutoGen.
@@ -211,7 +247,12 @@ demonstrating the sequential workflow pattern of AutoGen.
         print(self.outputs["blueprint"])
         
         print("\n" + "-"*80)
-        print("PHASE 4: STRATEGIC REVIEW (Full Output)")
+        print("PHASE 4: LAUNCH STRATEGY (Full Output)")
+        print("-"*80)
+        print(self.outputs["launch"])
+
+        print("\n" + "-"*80)
+        print("PHASE 5: STRATEGIC REVIEW (Full Output)")
         print("-"*80)
         print(self.outputs["review"])
 
@@ -240,6 +281,11 @@ demonstrating the sequential workflow pattern of AutoGen.
             f.write("-"*80 + "\n")
             f.write(self.outputs["blueprint"] + "\n")
             
+            f.write("\n" + "-"*80 + "\n")
+            f.write("PHASE 4: LAUNCH STRATEGY\n")
+            f.write("-"*80 + "\n")
+            f.write(self.outputs["launch"] + "\n")
+
             f.write("\n" + "-"*80 + "\n")
             f.write("PHASE 4: STRATEGIC REVIEW\n")
             f.write("-"*80 + "\n")

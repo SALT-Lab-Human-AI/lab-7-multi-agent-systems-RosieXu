@@ -95,7 +95,7 @@ cp .env.example .env
 
 # Add your OpenAI API key
 # Edit .env and add:
-OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_API_KEY=XXXXXX
 ```
 
 **2. Install Dependencies:**
