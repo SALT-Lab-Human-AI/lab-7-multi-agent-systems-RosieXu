@@ -1,3 +1,4 @@
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/3WjIbrgM)
 # 🤖 Multi-Agent Systems Lab: AutoGen vs. CrewAI
 
 ## Basics and Fundamentals (!!Read this first!!)
@@ -94,7 +95,7 @@ cp .env.example .env
 
 # Add your OpenAI API key
 # Edit .env and add:
-OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_API_KEY=XXXXXX
 ```
 
 **2. Install Dependencies:**

@@ -144,16 +144,18 @@ def search_travel_costs(destination: str) -> str:
 
 def create_flight_agent(destination: str, trip_dates: str):
     """Create the Flight Specialist agent with real research tools."""
+    
     return Agent(
         role="Flight Specialist",
-        goal=f"Research and recommend the best flight options for the {destination} trip "
-             f"({trip_dates}), considering dates, airlines, prices, and flight durations. "
-             f"Use real data from flight booking sites to provide accurate, current pricing.",
-        backstory="You are an experienced flight specialist with deep knowledge of "
-                  "airline schedules, pricing patterns, and travel routes. You excel at "
-                  "finding the best flight options that balance cost and convenience. "
-                  "You have booked thousands of flights and know the best times to fly. "
-                  "You always research current prices and use real booking site data.",
+        goal=(
+            f"Find reliable and convenient flight options for a trip to {destination} "
+            f"during {trip_dates}, comparing airlines, timing, and pricing."
+        ),
+        backstory=(
+            "You have strong experience researching flights and comparing major booking sites. "
+            "You’re good at spotting reasonable routes, avoiding long layovers, and balancing "
+            "price with convenience."
+        ),
         tools=[search_flight_prices],
         verbose=True,
         allow_delegation=False
@@ -163,24 +165,24 @@ def create_flight_agent(destination: str, trip_dates: str):
 def create_hotel_agent(destination: str, trip_dates: str):
     """Create the Accommodation Specialist agent with real research tools."""
     # Determine main city for hotels (if destination is just a country, use capital)
-    hotel_location = destination
     if destination.lower() == "iceland":
         hotel_location = "Reykjavik"
     elif destination.lower() == "france":
         hotel_location = "Paris"
     elif destination.lower() == "japan":
         hotel_location = "Tokyo"
+    else:
+        hotel_location = destination
 
     return Agent(
         role="Accommodation Specialist",
-        goal=f"Suggest top-rated hotels in {hotel_location} for the {destination} trip "
+        goal=(f"Suggest top-rated hotels in {hotel_location} for the {destination} trip "
              f"({trip_dates}), considering amenities, location, and value for money. "
-             f"Use real hotel data from booking sites with current prices and reviews.",
-        backstory="You are a seasoned accommodation expert with extensive knowledge of "
-                  "hotels worldwide. You understand traveler needs and can match them with "
-                  "perfect accommodations. You read reviews meticulously and know which "
-                  "hotels offer the best experience for different budgets. You always "
-                  "check current availability and actual guest reviews.",
+             f"Use real hotel data from booking sites with current prices and reviews."),
+        backstory= 
+            "You are familiar with popular hotel areas and what travelers usually value—"
+            "good location, safety, and solid reviews. You compare prices and amenities "
+            "to suggest hotels that fit different budgets.",
         tools=[search_hotel_options],
         verbose=True,
         allow_delegation=False
@@ -209,13 +211,16 @@ def create_budget_agent(destination: str):
     """Create the Financial Advisor agent with real cost research tools."""
     return Agent(
         role="Financial Advisor",
-        goal=f"Calculate total trip costs for {destination} and identify cost-saving opportunities "
-             f"while maintaining quality. Use real current pricing data for all expenses.",
+        goal=(
+            f"Estimate the overall cost of a trip to {destination} and point out where the traveler "
+            "can save money without lowering the experience."
+        ),
         backstory="You are a meticulous financial advisor specializing in travel budgeting. "
                   "You can analyze costs across flights, accommodations, activities, and meals. "
                   "You identify hidden costs and suggest smart ways to save money without "
                   "compromising the travel experience. You research actual current prices "
                   "and provide realistic budget estimates.",
+                  
         tools=[search_travel_costs],
         verbose=True,
         allow_delegation=False
@@ -283,6 +288,28 @@ def create_itinerary_task(itinerary_agent, destination: str, trip_duration: str,
                        f"attractions, realistic travel times, accurate estimated durations, current "
                        f"entry fees, and practical tips for {trip_duration} trip to {destination}"
     )
+
+
+def create_food_task(itinerary_agent, destination: str, trip_duration: str, trip_dates: str):
+    """Define an extra task for food and restaurant suggestions."""
+    return Task(
+        description=(
+            f"Using the planned {trip_duration} itinerary for {destination} ({trip_dates}), "
+            f"recommend local food and restaurant options for each day of the trip. "
+            f"For each day, include:\n"
+            f"- 1–2 typical local dishes or snacks to try\n"
+            f"- 2–3 restaurant or café suggestions in the main areas visited\n"
+            f"- A rough price level for each place (budget / mid-range / higher-end)\n"
+            f"Make sure the suggestions are realistic for the locations and pacing of the itinerary."
+        ),
+        agent=itinerary_agent,
+        expected_output=(
+            f"A day-by-day list of food and restaurant suggestions aligned with the "
+            f"{trip_duration} {destination} itinerary, including dish ideas, restaurant names, "
+            f"and rough price levels."
+        )
+    )
+
 
 
 def create_budget_task(budget_agent, destination: str, trip_duration: str):
@@ -381,6 +408,7 @@ def main(destination: str = "Iceland", trip_duration: str = "5 days",
     flight_task = create_flight_task(flight_agent, destination, trip_dates, departure_city)
     hotel_task = create_hotel_task(hotel_agent, destination, trip_dates)
     itinerary_task = create_itinerary_task(itinerary_agent, destination, trip_duration, trip_dates)
+    food_task = create_food_task(itinerary_agent, destination, trip_duration, trip_dates)
     budget_task = create_budget_task(budget_agent, destination, trip_duration)
 
     print("Tasks created successfully!")
@@ -388,12 +416,12 @@ def main(destination: str = "Iceland", trip_duration: str = "5 days",
 
     # Create the crew with sequential task execution
     print("Forming the Travel Planning Crew...")
-    print("Task Sequence: FlightAgent → HotelAgent → ItineraryAgent → BudgetAgent")
+    print("Task Sequence: FlightAgent → HotelAgent → ItineraryAgent → Food Planning → BudgetAgent")
     print()
 
     crew = Crew(
         agents=[flight_agent, hotel_agent, itinerary_agent, budget_agent],
-        tasks=[flight_task, hotel_task, itinerary_task, budget_task],
+        tasks=[flight_task, hotel_task, itinerary_task, food_task, budget_task],
         verbose=True,
         process="sequential"  # Sequential task execution
     )

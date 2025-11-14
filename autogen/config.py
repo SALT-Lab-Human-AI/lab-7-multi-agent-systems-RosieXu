@@ -100,14 +100,23 @@ class AgentConfig:
     """Configuration for individual agents"""
 
     RESEARCH_AGENT = {
-        "name": "ResearchAgent",
-        "role": "Market Researcher",
+        "role": "Market Research Analyst",
+        "backstory": (
+        "You specialize in analyzing AI product markets, especially tools related to "
+        "interview preparation, candidate assessment, and coaching platforms. "
+        "You can quickly scan competitor features, pricing models, and user pain points."
+    ),
         "temperature": 0.7,
     }
 
     ANALYSIS_AGENT = {
         "name": "AnalysisAgent",
-        "role": "Product Analyst",
+        "role": "Opportunity Strategist",
+        "backstory": (
+        "You are skilled at identifying unmet user needs, product gaps, and business "
+        "opportunities in the AI tooling space. You take market research and translate "
+        "it into clear opportunity areas."
+    ),
         "temperature": 0.7,
     }
 
@@ -122,6 +131,15 @@ class AgentConfig:
         "role": "Product Reviewer",
         "temperature": 0.7,
     }
+    LAUNCH_AGENT = {
+    "role": "Launch Strategist",
+    "backstory": (
+        "You focus on turning a product plan into a concrete launch strategy. "
+        "You think about target users, simple pricing models, and a realistic rollout plan "
+        "for the first 3–6 months."
+    ),
+    "temperature": 0.7,
+}
 
     @classmethod
     def get_agent_config(cls, agent_type: str) -> Dict[str, Any]:
